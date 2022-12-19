@@ -258,16 +258,19 @@ class CocoDataset(CustomDataset):
                 else:
                     segms = seg[label]
                     mask_score = [bbox[4] for bbox in bboxes]
+                
+                segms_size = len(segms)
                 for i in range(bboxes.shape[0]):
                     data = dict()
                     data['image_id'] = img_id
                     data['bbox'] = self.xyxy2xywh(bboxes[i])
                     data['score'] = float(mask_score[i])
                     data['category_id'] = self.cat_ids[label]
-                    if isinstance(segms[i]['counts'], bytes):
-                        segms[i]['counts'] = segms[i]['counts'].decode()
-                    data['segmentation'] = segms[i]
-                    segm_json_results.append(data)
+                    if i < segms_size:
+                        if isinstance(segms[i]['counts'], bytes):
+                            segms[i]['counts'] = segms[i]['counts'].decode()
+                        data['segmentation'] = segms[i]
+                        segm_json_results.append(data)
         return bbox_json_results, segm_json_results
 
     def results2json(self, results, outfile_prefix):
@@ -544,3 +547,7 @@ class CocoDataset(CustomDataset):
         if tmp_dir is not None:
             tmp_dir.cleanup()
         return eval_results
+
+@DATASETS.register_module
+class SingleClassDataset(CocoDataset):
+    CLASSES = ('apple',)

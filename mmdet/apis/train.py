@@ -74,7 +74,7 @@ def train_detector(model,
             dist=distributed,
             seed=cfg.seed) for ds in dataset
     ]
-
+    
     # build optimizer
     optimizer = build_optimizer(model, cfg.optimizer)
 

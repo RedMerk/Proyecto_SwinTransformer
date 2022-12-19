@@ -77,15 +77,22 @@ def imshow_det_bboxes(img,
     assert bboxes.shape[1] == 4 or bboxes.shape[1] == 5, \
         f' bboxes.shape[1] should be 4 or 5, but its {bboxes.shape[1]}.'
     img = mmcv.imread(img).astype(np.uint8)
-
+    
     if score_thr > 0:
         assert bboxes.shape[1] == 5
         scores = bboxes[:, -1]
         inds = scores > score_thr
+        for i,box in enumerate(bboxes):
+            a,b,c,d,e = box
+            if (a == 0.0 or b == 0.0 or c == 0.0 or d == 0.0) and abs(e-0.5)<0.02:
+                inds[i] = 0
         bboxes = bboxes[inds, :]
         labels = labels[inds]
         if segms is not None:
-            segms = segms[inds, ...]
+            if len(segms) == len(bboxes):
+                segms = segms[inds, ...]
+            else:  
+                segms = None
 
     mask_colors = []
     if labels.shape[0] > 0:
